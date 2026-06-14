@@ -564,7 +564,9 @@
 
     <div class="sidebar-section">Menu</div>
     <ul class="sidebar-nav">
-      <li><a class="active"><span class="nav-icon">⊞</span> Todos os Sistemas</a></li>
+      <li><a id="nav-sistemas" class="active" onclick="showView('sistemas')"><span class="nav-icon">⊞</span> Todos os Sistemas</a></li>
+      <li><a id="nav-notas" onclick="showView('notas')"><span class="nav-icon">📝</span> Anotações</a></li>
+      <li id="nav-admin-li" style="display:none"><a id="nav-admin" onclick="showView('admin')"><span class="nav-icon">⚙</span> Administração</a></li>
     </ul>
 
     <div class="sidebar-bottom">
@@ -601,9 +603,75 @@
     </div>
 
     <div class="filter-bar" id="filter-bar"></div>
-
     <div class="cards-grid" id="cards-grid"></div>
+
+    <!-- ══ ANOTAÇÕES ══ -->
+    <div id="view-notas" style="display:none">
+      <div class="main-header">
+        <h1>📝 Minhas Anotações</h1>
+        <p>Suas notas privadas — visíveis apenas para você.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;">
+        <textarea id="notas-textarea" placeholder="Digite suas anotações aqui... Ex: senhas, links, lembretes." style="width:100%;min-height:400px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;line-height:1.6;outline:none;resize:vertical;" oninput="saveNotas()"></textarea>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
+          <span style="font-size:12px;color:var(--muted);">💾 Salvo automaticamente no seu navegador</span>
+          <button onclick="clearNotas()" style="background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 14px;color:var(--muted);font-size:12px;cursor:pointer;">Limpar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ADMIN ══ -->
+    <div id="view-admin" style="display:none">
+      <div class="main-header">
+        <h1>⚙ Administração</h1>
+        <p>Gerencie usuários e permissões do portal.</p>
+      </div>
+
+      <!-- Lista de usuários -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;">Usuários cadastrados</h3>
+        <button onclick="openUserModal(null)" style="background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:var(--radius-sm);padding:10px 20px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">+ Novo usuário</button>
+      </div>
+      <div id="users-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
   </main>
+
+  <!-- ══ MODAL USUÁRIO ══ -->
+  <div id="user-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:36px;width:500px;max-width:95%;max-height:90vh;overflow-y:auto;">
+      <h3 style="font-family:'Space Grotesk',sans-serif;font-size:20px;margin-bottom:24px;" id="modal-title">Novo Usuário</h3>
+      <input type="hidden" id="modal-idx">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div>
+          <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Nome</label>
+          <input id="modal-name" type="text" placeholder="Ex: Natalia" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;outline:none;">
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Usuário (login)</label>
+          <input id="modal-username" type="text" placeholder="Ex: natalia" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;outline:none;">
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Senha</label>
+          <input id="modal-password" type="text" placeholder="Ex: nat2025" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;outline:none;">
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Cargo</label>
+          <input id="modal-role" type="text" placeholder="Ex: Financeiro" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;outline:none;">
+        </div>
+      </div>
+      <div style="margin-bottom:20px;">
+        <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Acesso aos sistemas</label>
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer;">
+          <input type="checkbox" id="modal-all" onchange="toggleAllSystems(this)"> <span style="font-size:13px;">Acesso total (Administrador)</span>
+        </label>
+        <div id="modal-systems" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;"></div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="saveUser()" style="flex:1;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:var(--radius-sm);padding:12px;color:#fff;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;">Salvar</button>
+        <button onclick="closeUserModal()" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 20px;color:var(--text);font-family:'Inter',sans-serif;cursor:pointer;">Cancelar</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -617,7 +685,6 @@ const USERS = [
     password: 'sp2025',
     name: 'Alex',
     role: 'Administrador',
-    // null = acesso a tudo; ou lista de IDs dos sistemas permitidos
     allowedSystems: null
   },
   {
@@ -625,7 +692,21 @@ const USERS = [
     password: 'nat2025',
     name: 'Natalia',
     role: 'Financeiro',
-    allowedSystems: ['financas', 'cobrancas']
+    allowedSystems: ['financas', 'cobrancas', 'flow', 'conversor']
+  },
+  {
+    username: 'jessica',
+    password: 'jes2025',
+    name: 'Jessica',
+    role: 'Financeiro',
+    allowedSystems: ['financas', 'cobrancas', 'flow']
+  },
+  {
+    username: 'mariana',
+    password: 'mar2025',
+    name: 'Mariana',
+    role: 'Tradutora',
+    allowedSystems: ['tradutor']
   },
   {
     username: 'karen',
@@ -766,7 +847,8 @@ function doLogin() {
   const p = document.getElementById('inp-pass').value;
   const err = document.getElementById('login-error');
 
-  const user = USERS.find(x => x.username === u && x.password === p);
+  const userList = getStoredUsers() || USERS;
+  const user = userList.find(x => x.username === u && x.password === p);
   if (!user) {
     err.style.display = 'block';
     return;
@@ -802,9 +884,22 @@ function showPortal() {
   document.getElementById('avatar-initials').textContent = currentUser.name[0].toUpperCase();
   document.getElementById('welcome-msg').textContent = `Olá, ${currentUser.name}! Selecione um sistema para acessar.`;
 
+  // Mostrar aba admin só para alex
+  const adminLi = document.getElementById('nav-admin-li');
+  if (adminLi) adminLi.style.display = currentUser.username === 'alex' ? 'block' : 'none';
+
+  // Login usa lista dinâmica
+  const dynamicUsers = getStoredUsers();
+  if (dynamicUsers) {
+    // Atualizar currentUser com dados mais recentes
+    const fresh = dynamicUsers.find(u => u.username === currentUser.username);
+    if (fresh) currentUser = fresh;
+  }
+
   renderStats();
   renderFilters();
   renderCards();
+  showView('sistemas');
 }
 
 function getAllowedSystems() {
@@ -880,6 +975,181 @@ function renderCards() {
     `;
     grid.appendChild(card);
   });
+}
+
+// ══════════════════════════════════════
+//  GERENCIAMENTO DE VIEWS
+// ══════════════════════════════════════
+let currentView = 'sistemas';
+
+function showView(view) {
+  currentView = view;
+  // Hide all views
+  document.getElementById('filter-bar').style.display = view === 'sistemas' ? 'flex' : 'none';
+  document.getElementById('cards-grid').style.display = view === 'sistemas' ? 'grid' : 'none';
+  document.getElementById('view-notas').style.display = view === 'notas' ? 'block' : 'none';
+  document.getElementById('view-admin').style.display = view === 'admin' ? 'block' : 'none';
+
+  // Update header
+  const titles = { sistemas: 'Portal SP Traduções', notas: 'Anotações', admin: 'Administração' };
+  const descs = { sistemas: `Olá, ${currentUser.name}! Selecione um sistema para acessar.`, notas: 'Suas notas privadas.', admin: 'Gerencie usuários e permissões.' };
+  document.querySelector('.main-header h1').textContent = titles[view] || 'Portal SP Traduções';
+  document.getElementById('welcome-msg').textContent = descs[view] || '';
+
+  // Nav active
+  ['sistemas','notas','admin'].forEach(v => {
+    const el = document.getElementById('nav-' + v);
+    if (el) el.classList.toggle('active', v === view);
+  });
+
+  if (view === 'notas') loadNotas();
+  if (view === 'admin') renderUsersList();
+}
+
+// ══════════════════════════════════════
+//  ANOTAÇÕES
+// ══════════════════════════════════════
+function notasKey() { return 'sp_notas_' + currentUser.username; }
+
+function loadNotas() {
+  const saved = localStorage.getItem(notasKey()) || '';
+  document.getElementById('notas-textarea').value = saved;
+}
+
+function saveNotas() {
+  localStorage.setItem(notasKey(), document.getElementById('notas-textarea').value);
+}
+
+function clearNotas() {
+  if (confirm('Limpar todas as anotações?')) {
+    localStorage.removeItem(notasKey());
+    document.getElementById('notas-textarea').value = '';
+  }
+}
+
+// ══════════════════════════════════════
+//  ADMIN — USUÁRIOS
+// ══════════════════════════════════════
+function getStoredUsers() {
+  try { return JSON.parse(localStorage.getItem('sp_users_config')) || null; } catch(e) { return null; }
+}
+
+function getAllUsers() {
+  return getStoredUsers() || USERS;
+}
+
+function saveUsers(users) {
+  localStorage.setItem('sp_users_config', JSON.stringify(users));
+}
+
+function renderUsersList() {
+  const users = getAllUsers();
+  const list = document.getElementById('users-list');
+  list.innerHTML = '';
+  users.forEach((u, idx) => {
+    const isAdmin = !u.allowedSystems;
+    const systems = isAdmin ? 'Acesso total' : (u.allowedSystems || []).map(id => {
+      const s = SYSTEMS.find(x => x.id === id);
+      return s ? s.name : id;
+    }).join(', ');
+
+    const card = document.createElement('div');
+    card.style.cssText = 'background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 20px;display:flex;align-items:center;gap:16px;';
+    card.innerHTML = \`
+      <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;">\${u.name[0]}</div>
+      <div style="flex:1;">
+        <div style="font-weight:600;font-size:14px;">\${u.name} <span style="color:var(--muted);font-weight:400;">@\${u.username}</span></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">\${u.role} · \${systems}</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="openUserModal(\${idx})" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 12px;color:var(--text);font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;">Editar</button>
+        \${u.username !== 'alex' ? \`<button onclick="deleteUser(\${idx})" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:6px;padding:6px 12px;color:#fca5a5;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;">Remover</button>\` : ''}
+      </div>
+    \`;
+    list.appendChild(card);
+  });
+}
+
+function openUserModal(idx) {
+  const modal = document.getElementById('user-modal');
+  modal.style.display = 'flex';
+  document.getElementById('modal-idx').value = idx !== null ? idx : '';
+  document.getElementById('modal-title').textContent = idx !== null ? 'Editar Usuário' : 'Novo Usuário';
+
+  // Render system checkboxes
+  const container = document.getElementById('modal-systems');
+  container.innerHTML = '';
+  SYSTEMS.forEach(s => {
+    const label = document.createElement('label');
+    label.style.cssText = 'display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;';
+    label.innerHTML = \`<input type="checkbox" name="sys" value="\${s.id}"> \${s.name}\`;
+    container.appendChild(label);
+  });
+
+  if (idx !== null) {
+    const u = getAllUsers()[idx];
+    document.getElementById('modal-name').value = u.name;
+    document.getElementById('modal-username').value = u.username;
+    document.getElementById('modal-password').value = u.password;
+    document.getElementById('modal-role').value = u.role;
+    const allCheck = document.getElementById('modal-all');
+    allCheck.checked = !u.allowedSystems;
+    document.getElementById('modal-systems').style.display = u.allowedSystems ? 'grid' : 'none';
+    if (u.allowedSystems) {
+      document.querySelectorAll('#modal-systems input[type=checkbox]').forEach(cb => {
+        cb.checked = u.allowedSystems.includes(cb.value);
+      });
+    }
+  } else {
+    document.getElementById('modal-name').value = '';
+    document.getElementById('modal-username').value = '';
+    document.getElementById('modal-password').value = '';
+    document.getElementById('modal-role').value = '';
+    document.getElementById('modal-all').checked = false;
+    document.getElementById('modal-systems').style.display = 'grid';
+  }
+}
+
+function toggleAllSystems(cb) {
+  document.getElementById('modal-systems').style.display = cb.checked ? 'none' : 'grid';
+}
+
+function closeUserModal() {
+  document.getElementById('user-modal').style.display = 'none';
+}
+
+function saveUser() {
+  const name = document.getElementById('modal-name').value.trim();
+  const username = document.getElementById('modal-username').value.trim().toLowerCase();
+  const password = document.getElementById('modal-password').value.trim();
+  const role = document.getElementById('modal-role').value.trim();
+  const allAccess = document.getElementById('modal-all').checked;
+
+  if (!name || !username || !password) { alert('Preencha nome, usuário e senha.'); return; }
+
+  const allowedSystems = allAccess ? null : Array.from(document.querySelectorAll('#modal-systems input[type=checkbox]:checked')).map(cb => cb.value);
+
+  const users = getAllUsers();
+  const idx = document.getElementById('modal-idx').value;
+  const user = { username, password, name, role, allowedSystems };
+
+  if (idx !== '') {
+    users[parseInt(idx)] = user;
+  } else {
+    users.push(user);
+  }
+
+  saveUsers(users);
+  closeUserModal();
+  renderUsersList();
+}
+
+function deleteUser(idx) {
+  if (!confirm('Remover este usuário?')) return;
+  const users = getAllUsers();
+  users.splice(idx, 1);
+  saveUsers(users);
+  renderUsersList();
 }
 
 // ══════════════════════════════════════
