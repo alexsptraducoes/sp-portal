@@ -1055,17 +1055,17 @@ function renderUsersList() {
 
     const card = document.createElement('div');
     card.style.cssText = 'background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 20px;display:flex;align-items:center;gap:16px;';
-    card.innerHTML = \`
-      <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;">\${u.name[0]}</div>
+    card.innerHTML = `
+      <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;">${u.name[0]}</div>
       <div style="flex:1;">
-        <div style="font-weight:600;font-size:14px;">\${u.name} <span style="color:var(--muted);font-weight:400;">@\${u.username}</span></div>
-        <div style="font-size:12px;color:var(--muted);margin-top:2px;">\${u.role} · \${systems}</div>
+        <div style="font-weight:600;font-size:14px;">${u.name} <span style="color:var(--muted);font-weight:400;">@${u.username}</span></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">${u.role} &middot; ${systems}</div>
       </div>
       <div style="display:flex;gap:8px;">
-        <button onclick="openUserModal(\${idx})" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 12px;color:var(--text);font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;">Editar</button>
-        \${u.username !== 'alex' ? \`<button onclick="deleteUser(\${idx})" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:6px;padding:6px 12px;color:#fca5a5;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;">Remover</button>\` : ''}
+        <button onclick="openUserModal(${idx})" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 12px;color:var(--text);font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;">Editar</button>
+        ${u.username !== 'alex' ? '<button onclick="deleteUser(' + idx + ')" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:6px;padding:6px 12px;color:#fca5a5;font-size:12px;cursor:pointer;font-family:Inter,sans-serif;">Remover</button>' : ''}
       </div>
-    \`;
+    `;
     list.appendChild(card);
   });
 }
@@ -1082,7 +1082,7 @@ function openUserModal(idx) {
   SYSTEMS.forEach(s => {
     const label = document.createElement('label');
     label.style.cssText = 'display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;';
-    label.innerHTML = \`<input type="checkbox" name="sys" value="\${s.id}"> \${s.name}\`;
+    label.innerHTML = '<input type="checkbox" name="sys" value="' + s.id + '"> ' + s.name;
     container.appendChild(label);
   });
 
